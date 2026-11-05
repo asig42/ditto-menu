@@ -33,6 +33,42 @@ window.addEventListener('scroll', () => {
   }
 }, {passive:true});
 
+const landing = document.querySelector('.landing');
+const intro = $('intro');
+const atLanding = () => window.scrollY <= 2;
+const showIntro = () => intro.scrollIntoView({block:'start'});
+
+// Keep trackpad momentum from carrying the first gesture past the intro.
+let wheelGesture;
+window.addEventListener('wheel', event => {
+  if (event.ctrlKey || event.deltaY <= Math.abs(event.deltaX)) return;
+  if (!wheelGesture && !atLanding()) return;
+  if (!event.cancelable) return;
+  event.preventDefault();
+  if (!wheelGesture) showIntro();
+  clearTimeout(wheelGesture);
+  wheelGesture = setTimeout(() => { wheelGesture = undefined; }, 150);
+}, {passive:false});
+
+let swipe;
+landing.addEventListener('touchstart', event => {
+  const touch = event.touches[0];
+  swipe = atLanding() && event.touches.length === 1
+    ? {x:touch.clientX, y:touch.clientY, advanced:false}
+    : undefined;
+}, {passive:true});
+landing.addEventListener('touchmove', event => {
+  if (!swipe || event.touches.length !== 1 || !event.cancelable) return;
+  const touch = event.touches[0];
+  const distance = swipe.y - touch.clientY;
+  if (!swipe.advanced && distance <= Math.abs(touch.clientX - swipe.x)) return;
+  event.preventDefault();
+  if (!swipe.advanced && distance >= 12) {
+    swipe.advanced = true;
+    showIntro();
+  }
+}, {passive:false});
+
 if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const observer = new IntersectionObserver(entries => {
     for (const [index, entry] of entries.filter(entry => entry.isIntersecting).entries()) {
