@@ -81,11 +81,6 @@ function item(entry, language = 'ko') {
   if (english && !entry.english && /[가-힣]/.test(entry.name)) title.lang = 'ko';
   head.append(title, price);
   row.append(head);
-  if (!english && entry.english) {
-    const subtitle = node('p', entry.english);
-    subtitle.lang = 'en';
-    row.append(subtitle);
-  }
   const detail = english && entry.englishDetail ? entry.englishDetail : entry.detail;
   if (detail) {
     const description = node('p', detail);
