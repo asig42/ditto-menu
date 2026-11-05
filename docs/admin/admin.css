@@ -25,8 +25,8 @@ html{scroll-snap-type:none;scroll-behavior:auto}
 #reorder-help{margin:0 0 12px}
 .admin-row:has([aria-pressed="true"]){background:#171513}
 .row-select{border:0;flex:1;min-width:0;text-align:left;padding:14px 10px;display:grid;gap:4px;border-radius:0}
-.row-select strong{font-size:.94rem;overflow-wrap:anywhere}
-.row-select small{color:var(--muted);font-size:.77rem}
+.row-select strong{font-size:1rem;line-height:1.35;overflow-wrap:anywhere}
+.row-select small{color:var(--muted);font-size:.82rem;line-height:1.4}
 .row-actions{display:flex;align-items:center;padding-right:6px;flex-shrink:0}
 .row-actions button{padding:0 8px;border:0;font-size:.77rem;color:var(--muted)}
 .row-actions button:disabled{opacity:.3;cursor:default}

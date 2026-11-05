@@ -1,4 +1,12 @@
-:root{color-scheme:dark;--ink:#f4f2ed;--muted:#b9b5ae;--line:#373532;--orange:#ff781f;--bg:#030303;font-family:system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
+@font-face{
+  font-family:Paperozi;
+  src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2") format("woff2");
+  font-weight:800;
+  font-display:swap;
+}
+:root{color-scheme:dark;--ink:#f4f2ed;--muted:#b9b5ae;--line:#373532;--orange:#ff781f;--bg:#030303;font-family:Pretendard,system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+h1,h2{font-family:Paperozi,Pretendard,system-ui,sans-serif;font-weight:800;letter-spacing:-.045em;line-height:1.12}
 *{box-sizing:border-box} [hidden]{display:none!important}
 html{scroll-behavior:smooth;scroll-snap-type:y proximity}
 body{margin:0;background:var(--bg);color:var(--ink);word-break:keep-all}
@@ -15,7 +23,6 @@ button,.button{background:transparent;border:1px solid var(--line);border-radius
 .nav [aria-current],.nav [aria-pressed="true"]{color:var(--orange);border-bottom-color:var(--orange)}
 .item{border-top:1px solid var(--line);padding:18px 0;min-width:0}
 .item-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
-.item h3{font-size:clamp(16px,2.1vw,20px);line-height:1.45;overflow-wrap:anywhere}
-.price{white-space:nowrap;font-weight:650;font-variant-numeric:tabular-nums;font-size:.95rem}
-.item p{margin-top:5px;color:var(--muted);font-size:.85rem;line-height:1.55;overflow-wrap:anywhere}
-.mark{font-size:.76em;margin-left:.38em}
+.item h3{font-size:clamp(17px,2.2vw,20px);font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+.price{white-space:nowrap;font-weight:600;font-variant-numeric:tabular-nums;font-size:.95rem}
+.item p{margin-top:4px;color:var(--muted);font-size:.875rem;line-height:1.5;overflow-wrap:anywhere}

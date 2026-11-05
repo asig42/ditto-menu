@@ -173,8 +173,8 @@ function edit(row) {
   selected = row?.id ?? null;
   const content = row?.draft || row?.live;
   form.reset();
-  for (const key of ['name','english','price','detail','stars']) {
-    form.elements[key].value = content?.[key] ?? (key === 'stars' ? '0' : '');
+  for (const key of ['name','english','price','detail']) {
+    form.elements[key].value = content?.[key] ?? '';
   }
   $('editor-title').textContent = row ? content.name : '메뉴 추가';
   $('preview').hidden = true;
@@ -186,7 +186,6 @@ function edit(row) {
 function input() {
   const values = Object.fromEntries(new FormData(form));
   for (const key of Object.keys(values)) values[key] = values[key].trim();
-  values.stars = Number(values.stars);
   form.elements.name.setCustomValidity(values.name ? '' : '메뉴명을 입력해 주세요.');
   return values;
 }
