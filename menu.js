@@ -1,4 +1,31 @@
 let activeCategory = 'food';
+const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+const language = languages.map(tag => tag?.toLowerCase().split('-')[0])
+  .find(tag => tag === 'ko' || tag === 'en') ?? 'en';
+const english = language === 'en';
+const englishNotes = {
+  bottle: 'Our sommelier recommends a bottle based on your dishes and preferences. Bottle wines are available by recommendation.',
+  glass: 'Our by-the-glass selection changes daily. Please ask us what we are pouring today.'
+};
+
+if (english) {
+  document.documentElement.lang = 'en';
+  document.title = 'DITTO Busan · Menu';
+  const introduction = [
+    'DITTO is a wine bar in Busan specializing in pairings. Our cooking centers on fermentation and aging.',
+    'Sommelier Kim Hyeong-jun leads our pairings. He brings 15 years of experience and previously served as head sommelier at a two-Michelin-starred restaurant.',
+    'Chef Yun Su-yeong prepares dishes to complement the wines.',
+    'We talk with each guest to find the right glass and plate for them.',
+    'Thank you for visiting.'
+  ];
+  document.querySelectorAll('#intro p').forEach((paragraph, index) => {
+    paragraph.textContent = introduction[index];
+  });
+  $('intro').setAttribute('aria-label', 'About DITTO');
+  document.querySelector('.arrow').setAttribute('aria-label', 'About DITTO');
+  document.querySelector('.next').textContent = 'View menu';
+  $('menu-nav').setAttribute('aria-label', 'Menu categories');
+}
 function highlight() {
   for (const link of $('menu-nav').children) {
     if (link.hash === '#' + activeCategory) link.setAttribute('aria-current','location');
@@ -9,17 +36,19 @@ function renderGuest() {
   $('menu-list').replaceChildren();
   $('menu-nav').replaceChildren();
   for (const [key, label, heading, note] of categories) {
-    const link = node('a', label);
+    const link = node('a', english ? heading : label);
     link.href = '#' + key;
     $('menu-nav').append(link);
     const section = node('section', '', 'category');
     section.id = key;
     section.append(node('h2', heading));
-    if (note) section.append(node('p', note, 'note'));
+    if (note) section.append(node('p', english ? englishNotes[key] : note, 'note'));
     const entries = node('div', '', 'entries');
     const visible = records.filter(row => row.category === key && row.state === 'public');
-    for (const row of visible) entries.append(item(row.live));
-    if (!visible.length) entries.append(node('p', '현재 공개된 메뉴가 없습니다.', 'note'));
+    for (const row of visible) {
+      entries.append(item({...row.live, englishDetail:englishDetailFor(row.id, row.live)}, language));
+    }
+    if (!visible.length) entries.append(node('p', english ? 'No items are currently available.' : '현재 공개된 메뉴가 없습니다.', 'note'));
     section.append(entries);
     $('menu-list').append(section);
   }

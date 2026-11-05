@@ -176,6 +176,7 @@ function edit(row) {
   for (const key of ['name','english','price','detail']) {
     form.elements[key].value = content?.[key] ?? '';
   }
+  form.elements.englishDetail.value = row ? englishDetailFor(row.id, content) ?? '' : '';
   $('editor-title').textContent = row ? content.name : '메뉴 추가';
   $('preview').hidden = true;
   $('empty-editor').hidden = true;
