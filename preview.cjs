@@ -15,7 +15,11 @@ const assets = new Map([
 
 http.createServer((request, response) => {
   const path = request.url.split('?')[0];
-  const file = path === '/' ? 'index.html' : path.slice(1);
+  if (path === '/admin/') {
+    response.writeHead(302, { Location: '/admin' }).end();
+    return;
+  }
+  const file = path === '/' ? 'index.html' : path === '/admin' ? 'admin.html' : path.slice(1);
   const contentType = assets.get(file);
   if (!contentType) {
     response.writeHead(404).end();
@@ -27,5 +31,5 @@ http.createServer((request, response) => {
     .pipe(response);
 }).listen(4173, '127.0.0.1', () => {
   console.log('손님 메뉴  http://127.0.0.1:4173/');
-  console.log('메뉴 운영  http://127.0.0.1:4173/admin.html');
+  console.log('메뉴 운영  http://127.0.0.1:4173/admin');
 });

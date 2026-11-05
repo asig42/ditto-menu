@@ -3,6 +3,7 @@ html{scroll-snap-type:none;scroll-behavior:auto}
 .admin-top{display:flex;align-items:center;gap:18px;padding-bottom:22px;border-bottom:1px solid var(--line)}
 .admin-top img{object-fit:contain}
 .admin-top h1{font-size:clamp(23px,4vw,32px);letter-spacing:-.055em}
+.preview-note{margin:12px 0 4px}
 .admin-grid{display:grid;gap:30px;margin-top:30px}
 .list-head,.editor-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
 .list-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}

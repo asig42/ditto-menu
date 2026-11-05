@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#030303">
+<title>DITTO · 메뉴 운영</title>
+<link rel="stylesheet" href="../base.css">
+<link rel="stylesheet" href="admin.css">
+<main class="wrap" id="admin">
+  <header class="admin-top"><img src="../ditto-logo.png" width="66" height="44" alt="DITTO"><h1>메뉴 운영</h1></header>
+  <p class="muted preview-note">운영 시안입니다. 변경사항은 이 브라우저에만 저장됩니다.</p>
+  <nav class="nav" id="admin-nav" aria-label="관리할 카테고리"></nav>
+  <div class="admin-grid">
+    <section aria-label="등록된 메뉴">
+      <header class="list-head"><div><h2 id="list-title">푸드</h2><p id="count" class="muted"></p></div><div class="list-actions"><button id="reorder" aria-pressed="false">순서 변경</button><button id="add">메뉴 추가</button></div></header>
+      <p id="reorder-help" class="muted" hidden>손잡이를 끌거나 위·아래 화살표를 눌러 순서를 바꿀 수 있습니다.</p>
+      <div class="feedback"><p id="status" role="status"></p><button id="undo" hidden>되돌리기</button></div>
+      <div id="admin-list"></div>
+    </section>
+    <div class="edit-panel"><p id="empty-editor">목록에서 메뉴를 선택하면 편집할 수 있습니다.</p><form class="form" id="editor" hidden>
+      <header class="editor-head"><div><h2 id="editor-title">메뉴 편집</h2><p id="editor-state" class="muted"></p></div><button type="button" id="close-editor">닫기</button></header>
+      <label>메뉴명<input name="name" required maxlength="90"></label>
+      <label>영문명<input name="english" maxlength="90"></label>
+      <label>가격 표시<input name="price" maxlength="40" placeholder="19,000원"></label>
+      <label>재료 또는 설명<textarea name="detail" rows="3" maxlength="350"></textarea></label>
+      <label>별 표기<select name="stars"><option value="0">없음</option><option value="1">별 한 개</option><option value="2">별 두 개</option></select></label>
+      <div class="preview" id="preview" hidden></div>
+      <div class="actions">
+        <button type="button" id="preview-button">미리 보기</button>
+        <button value="draft">초안 저장</button>
+        <button class="primary" value="public">공개하기</button>
+      </div>
+    </form></div>
+  </div>
+</main>
+<script src="../menu-data.js"></script>
+<script src="admin.js"></script>
+</html>
