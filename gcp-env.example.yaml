@@ -1,0 +1,5 @@
+FIREBASE_PROJECT_ID: "your-project-id"
+FIREBASE_API_KEY: "your-web-api-key"
+FIREBASE_AUTH_DOMAIN: "your-project-id.firebaseapp.com"
+FIREBASE_APP_ID: "your-web-app-id"
+ADMIN_EMAILS: "owner@example.com,manager@example.com"

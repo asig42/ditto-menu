@@ -10,6 +10,8 @@ const assets = new Map([
   ['menu-data.js', 'text/javascript; charset=utf-8'],
   ['menu.js', 'text/javascript; charset=utf-8'],
   ['admin.js', 'text/javascript; charset=utf-8'],
+  ['runtime.js', 'text/javascript; charset=utf-8'],
+  ['admin-auth.js', 'text/javascript; charset=utf-8'],
   ['ditto-logo.png', 'image/png']
 ]);
 

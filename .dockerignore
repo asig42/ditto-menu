@@ -1,0 +1,12 @@
+.git
+.codex
+.agents
+.aws
+gcp-env.example.yaml
+node_modules
+docs
+release
+tests
+.env*
+gcp-env.yaml
+*.zip

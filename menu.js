@@ -111,9 +111,28 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
   }
 }
 
+async function loadCloudMenu() {
+  try {
+    const response = await fetch('/api/menu', {cache:'no-store'});
+    if (!response.ok) throw new Error('menu unavailable');
+    records = await response.json();
+    renderGuest();
+    $('menu-error').textContent = '';
+  } catch {
+    $('menu-error').textContent = english ? 'Unable to load the menu. Please refresh or ask our staff.' : '메뉴를 불러오지 못했습니다. 새로고침하거나 직원에게 문의해 주세요.';
+  }
+}
+if (window.dittoRuntime?.cloud) {
+  records = [];
+  loadCloudMenu();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) loadCloudMenu();
+  });
+}
 renderGuest();
 if (location.hash) requestAnimationFrame(() => $(location.hash.slice(1))?.scrollIntoView());
 window.addEventListener('storage', event => {
+  if (window.dittoRuntime?.cloud) return;
   if (event.key !== storageKey && event.key !== null) return;
   records = event.newValue ? JSON.parse(event.newValue) : initial;
   renderGuest();

@@ -10,20 +10,33 @@ function action(label, handler) {
   el.addEventListener('click', handler);
   return el;
 }
-function commit(next, message) {
+let saving = false;
+async function commit(next, message) {
+  if (saving) return false;
+  saving = true;
+  const controls = document.createElement('fieldset');
+  controls.disabled = true;
+  controls.style.cssText = 'border:0;padding:0;margin:0;min-width:0';
+  $('admin').before(controls);
+  controls.append($('admin'));
   try {
-    localStorage.setItem(storageKey, JSON.stringify(next));
-  } catch {
-    $('status').textContent = '저장하지 못했습니다. 브라우저의 저장 설정을 확인해 주세요.';
+    if (window.dittoRuntime?.cloud) await window.dittoCloud.save(next);
+    else localStorage.setItem(storageKey, JSON.stringify(next));
+  } catch (error) {
+    $('status').textContent = error.message || '저장하지 못했습니다. 다시 시도해 주세요.';
     return false;
+  } finally {
+    controls.before($('admin'));
+    controls.remove();
+    saving = false;
   }
   records = next;
   $('status').textContent = message;
   renderAdmin();
   return true;
 }
-function toggle(row, state) {
-  if (commit(records.map(entry => entry.id === row.id ? {...entry, state} : entry),
+async function toggle(row, state) {
+  if (await commit(records.map(entry => entry.id === row.id ? {...entry, state} : entry),
     state === 'hidden' ? '손님 메뉴에서 내렸습니다.' : '손님 메뉴에 공개했습니다.')) {
     restoreId = state === 'hidden' ? row.id : null;
     $('undo').hidden = !restoreId;
@@ -41,6 +54,7 @@ function move(row, step) {
 }
 function enableDrag(handle, row) {
   handle.addEventListener('pointerdown', event => {
+    if (saving) return;
     if (!event.isPrimary || event.button !== 0) return;
     event.preventDefault();
     const source = handle.closest('.admin-row');
@@ -215,12 +229,12 @@ $('preview-button').onclick = () => {
   $('preview').replaceChildren(item(values));
   $('preview').hidden = false;
 };
-form.onsubmit = event => {
+form.onsubmit = async event => {
   event.preventDefault();
   const values = input();
   if (!form.reportValidity()) return;
   const existing = records.find(row => row.id === selected);
-  const row = {...(existing ?? {id:Date.now().toString(36), category, state:'draft'})};
+  const row = {...(existing ?? {id:crypto.randomUUID(), category, state:'draft'})};
   const publish = event.submitter?.value === 'public';
   if (publish) {
     row.live = values;
@@ -228,7 +242,7 @@ form.onsubmit = event => {
     delete row.draft;
   } else row.draft = values;
   const next = existing ? records.map(entry => entry.id === selected ? row : entry) : [...records, row];
-  if (commit(next, publish ? '손님 메뉴에 공개했습니다.' : '초안을 저장했습니다.')) {
+  if (await commit(next, publish ? '손님 메뉴에 공개했습니다.' : '초안을 저장했습니다.')) {
     selected = row.id;
     $('editor-title').textContent = values.name;
     renderAdmin();
@@ -237,3 +251,5 @@ form.onsubmit = event => {
 
 
 renderAdmin();
+
+if (!window.dittoRuntime?.cloud) $('admin').hidden = false;

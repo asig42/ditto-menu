@@ -46,3 +46,9 @@ html{scroll-snap-type:none;scroll-behavior:auto}
   .edit-panel{border-top:0;border-left:1px solid var(--line);padding:0 0 0 26px;position:sticky;top:24px;max-height:calc(100vh - 48px);overflow:auto}
   .form{padding:4px}
 }
+.login{padding-block:64px}
+.login h1{font-size:28px}
+.login p{margin-block:24px;line-height:1.6}
+#login:has(+ #admin:not([hidden])){padding-block:20px}
+#login:has(+ #admin:not([hidden])) h1,#login:has(+ #admin:not([hidden])) #google-login{display:none}
+#login:has(+ #admin:not([hidden])) p{margin-block:0 0 12px}

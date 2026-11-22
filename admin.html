@@ -6,7 +6,13 @@
 <title>DITTO · 메뉴 운영</title>
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="admin.css">
-<main class="wrap" id="admin">
+<section class="wrap login" id="login" hidden>
+  <h1>DITTO 메뉴 운영</h1>
+  <p id="login-status" role="status">로그인을 확인하고 있습니다.</p>
+  <button id="google-login" class="primary" disabled>Google로 로그인</button>
+  <button id="logout" hidden>로그아웃</button>
+</section>
+<main class="wrap" id="admin" hidden>
   <header class="admin-top"><img src="ditto-logo.png" width="66" height="44" alt="DITTO"><h1>메뉴 운영</h1></header>
   <p class="muted preview-note">운영 시안입니다. 변경사항은 이 브라우저에만 저장됩니다.</p>
   <nav class="nav" id="admin-nav" aria-label="관리할 카테고리"></nav>
@@ -33,6 +39,8 @@
     </form></div>
   </div>
 </main>
+<script src="runtime.js"></script>
 <script src="menu-data.js"></script>
 <script src="admin.js"></script>
+<script type="module" src="admin-auth.js"></script>
 </html>

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+release/
+.env
+.env.*
+!.env.example
+gcp-env.yaml
+service-account*.json
+*-firebase-adminsdk-*.json
+*.zip

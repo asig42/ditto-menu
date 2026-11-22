@@ -61,7 +61,7 @@ const initial = seed.flatMap((rows, group) => rows.map(([name, english, price, d
 const storageKey = 'ditto-menu-preview-v1';
 let records = initial;
 try {
-  const stored = JSON.parse(localStorage.getItem(storageKey));
+  const stored = window.dittoRuntime?.cloud ? null : JSON.parse(localStorage.getItem(storageKey));
   if (Array.isArray(stored)) records = stored;
 } catch {}
 

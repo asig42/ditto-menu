@@ -1,0 +1,16 @@
+.gcloudignore
+.git
+.git/**
+.codex
+.agents
+.aws
+node_modules
+dist
+docs
+release
+.env
+.env.*
+gcp-env.yaml
+service-account*.json
+*-firebase-adminsdk-*.json
+*.zip
