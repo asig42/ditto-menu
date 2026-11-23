@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.cjs",
+    "build:docs": "node scripts/build.cjs --docs",
     "start": "node server.cjs",
+    "pretest": "npm run build",
     "test": "node --test tests/*.test.cjs"
   },
   "engines": { "node": ">=22" },
