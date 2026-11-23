@@ -1,6 +1,7 @@
 let activeCategory = 'food';
 let loadingMenu = Boolean(window.dittoRuntime?.cloud);
 const langStorageKey = 'ditto-menu-lang';
+const splashSeenKey = 'ditto-splash-seen';
 
 function detectInitialLanguage() {
   try {
@@ -17,10 +18,11 @@ let language = detectInitialLanguage();
 const copy = {
   ko: {
     title: 'DITTO 부산 · 메뉴',
-    introLabel: '디토 소개',
-    arrowLabel: '디토 소개 보기',
-    skipMenu: '메뉴 바로가기',
-    next: '메뉴 보기',
+    brandLead: '디토는 부산의 발효와 숙성을 주제로 한 페어링 전문 와인바입니다.',
+    storyTrigger: '소믈리에 · 셰프 소개 보기 →',
+    storyLabel: '디토 소개',
+    storyClose: '닫기 ✕',
+    storyBack: '메뉴로 돌아가기',
     navLabel: '메뉴 카테고리',
     langLabel: '언어 선택',
     tagline: '부산 페어링 전문 와인바',
@@ -41,10 +43,11 @@ const copy = {
   },
   en: {
     title: 'DITTO Busan · Menu',
-    introLabel: 'About DITTO',
-    arrowLabel: 'About DITTO',
-    skipMenu: 'Skip to menu',
-    next: 'View menu',
+    brandLead: 'DITTO is a pairing wine bar in Busan centered on fermentation and aging.',
+    storyTrigger: 'About our sommelier & chef →',
+    storyLabel: 'About DITTO',
+    storyClose: 'Close ✕',
+    storyBack: 'Back to menu',
     navLabel: 'Menu categories',
     langLabel: 'Language',
     tagline: 'Pairing Wine Bar · Busan',
@@ -64,6 +67,72 @@ const copy = {
     }
   }
 };
+
+// Short skippable logo splash on first session load (no scroll locking)
+const splash = $('splash');
+let splashTimer;
+let splashFadeTimer;
+
+function dismissSplash() {
+  if (!splash || splash.hidden) return;
+  clearTimeout(splashTimer);
+  if (splash.classList.contains('is-leaving')) return;
+  try { sessionStorage.setItem(splashSeenKey, '1'); } catch {}
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    splash.hidden = true;
+    return;
+  }
+  splash.classList.add('is-leaving');
+  splashFadeTimer = setTimeout(() => {
+    splash.hidden = true;
+    splash.classList.remove('is-leaving');
+  }, 460);
+}
+
+function initSplash() {
+  if (!splash) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let seen = false;
+  try { seen = sessionStorage.getItem(splashSeenKey) === '1'; } catch {}
+  if (seen || reduced || (location.hash && location.hash !== '#top')) {
+    splash.hidden = true;
+    return;
+  }
+  splash.hidden = false;
+  splashTimer = setTimeout(dismissSplash, 850);
+  splash.addEventListener('click', dismissSplash, {once: true});
+  window.addEventListener('wheel', dismissSplash, {once: true, passive: true});
+  window.addEventListener('touchstart', dismissSplash, {once: true, passive: true});
+  window.addEventListener('keydown', dismissSplash, {once: true});
+}
+
+// Story full-screen matte sheet
+const storySheet = $('story-sheet');
+function openStory() {
+  if (!storySheet) return;
+  if (typeof storySheet.showModal === 'function') {
+    if (!storySheet.open) storySheet.showModal();
+  } else {
+    storySheet.setAttribute('open', '');
+  }
+  storySheet.scrollTop = 0;
+}
+function closeStory() {
+  if (!storySheet) return;
+  if (typeof storySheet.close === 'function' && storySheet.open) {
+    storySheet.close();
+  } else {
+    storySheet.removeAttribute('open');
+  }
+  $('open-story')?.focus();
+}
+$('open-story')?.addEventListener('click', openStory);
+$('close-story')?.addEventListener('click', closeStory);
+$('story-back')?.addEventListener('click', closeStory);
+storySheet?.addEventListener('cancel', event => {
+  event.preventDefault();
+  closeStory();
+});
 
 function updateNavFades() {
   const nav = $('menu-nav');
@@ -100,7 +169,12 @@ function applyLanguageChrome() {
   const strings = copy[language];
   document.documentElement.lang = language;
   document.title = strings.title;
-  document.querySelectorAll('#intro p').forEach((paragraph, index) => {
+  $('brand-lead').textContent = strings.brandLead;
+  $('open-story').textContent = strings.storyTrigger;
+  $('story-sheet').setAttribute('aria-label', strings.storyLabel);
+  $('close-story').textContent = strings.storyClose;
+  $('story-back').textContent = strings.storyBack;
+  document.querySelectorAll('#story-body p').forEach((paragraph, index) => {
     paragraph.replaceChildren();
     if (english) {
       paragraph.textContent = strings.introText[index];
@@ -112,10 +186,6 @@ function applyLanguageChrome() {
       });
     }
   });
-  $('intro').setAttribute('aria-label', strings.introLabel);
-  document.querySelector('.arrow').setAttribute('aria-label', strings.arrowLabel);
-  document.querySelector('.skip-menu').textContent = strings.skipMenu;
-  document.querySelector('.next').textContent = strings.next;
   $('menu-nav').setAttribute('aria-label', strings.navLabel);
   $('footer-tagline').textContent = strings.tagline;
   document.querySelectorAll('.lang-switch').forEach(group => {
@@ -203,6 +273,8 @@ function renderGuest() {
 }
 
 function syncActiveCategory() {
+  const navHeight = document.querySelector('.nav-shell')?.getBoundingClientRect().height ?? 56;
+  const threshold = navHeight + 54;
   const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
   let current = 'food';
   if (nearBottom) {
@@ -210,7 +282,7 @@ function syncActiveCategory() {
   } else {
     const matched = categories.findLast(([key]) => {
       const el = $(key);
-      return el && el.getBoundingClientRect().top < 110;
+      return el && el.getBoundingClientRect().top < threshold;
     });
     current = matched?.[0] ?? 'food';
   }
@@ -228,55 +300,6 @@ document.querySelectorAll('.lang-switch button').forEach(button => {
   button.addEventListener('click', () => setLanguage(button.dataset.lang));
 });
 
-const landing = document.querySelector('.landing');
-const intro = $('intro');
-const atLanding = () => window.scrollY <= 2;
-const showIntro = () => intro.scrollIntoView({block: 'start'});
-
-// Keep trackpad momentum from carrying the first gesture past the intro.
-let wheelGesture;
-window.addEventListener('wheel', event => {
-  if (event.ctrlKey || event.deltaY <= Math.abs(event.deltaX)) return;
-  if (!wheelGesture && !atLanding()) return;
-  if (!event.cancelable) return;
-  event.preventDefault();
-  if (!wheelGesture) showIntro();
-  clearTimeout(wheelGesture);
-  wheelGesture = setTimeout(() => { wheelGesture = undefined; }, 260);
-}, {passive: false});
-
-let swipe;
-landing.addEventListener('touchstart', event => {
-  const touch = event.touches[0];
-  swipe = atLanding() && event.touches.length === 1
-    ? {x: touch.clientX, y: touch.clientY, advanced: false}
-    : undefined;
-}, {passive: true});
-landing.addEventListener('touchmove', event => {
-  if (!swipe || event.touches.length !== 1 || !event.cancelable) return;
-  const touch = event.touches[0];
-  const distance = swipe.y - touch.clientY;
-  if (!swipe.advanced && distance <= Math.abs(touch.clientX - swipe.x)) return;
-  event.preventDefault();
-  if (!swipe.advanced && distance >= 12) {
-    swipe.advanced = true;
-    showIntro();
-  }
-}, {passive: false});
-
-if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const observer = new IntersectionObserver(entries => {
-    for (const [index, entry] of entries.filter(entry => entry.isIntersecting).entries()) {
-      observer.unobserve(entry.target);
-      setTimeout(() => entry.target.classList.remove('waiting'), index * 180);
-    }
-  }, {threshold: .35});
-  for (const paragraph of document.querySelectorAll('.intro p')) {
-    paragraph.classList.add('waiting');
-    observer.observe(paragraph);
-  }
-}
-
 async function loadCloudMenu() {
   try {
     const response = await fetch('/api/menu', {cache: 'no-store'});
@@ -293,6 +316,7 @@ async function loadCloudMenu() {
   }
 }
 
+initSplash();
 applyLanguageChrome();
 if (window.dittoRuntime?.cloud) {
   records = [];
