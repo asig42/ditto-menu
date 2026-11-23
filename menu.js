@@ -18,11 +18,8 @@ let language = detectInitialLanguage();
 const copy = {
   ko: {
     title: 'DITTO 부산 · 메뉴',
-    brandLead: '디토는 부산의 발효와 숙성을 주제로 한 페어링 전문 와인바입니다.',
-    storyTrigger: '소믈리에 · 셰프 소개 보기 →',
-    storyLabel: '디토 소개',
-    storyClose: '닫기 ✕',
-    storyBack: '메뉴로 돌아가기',
+    introLabel: '디토 소개',
+    next: '메뉴 보기',
     navLabel: '메뉴 카테고리',
     langLabel: '언어 선택',
     tagline: '부산 페어링 전문 와인바',
@@ -43,11 +40,8 @@ const copy = {
   },
   en: {
     title: 'DITTO Busan · Menu',
-    brandLead: 'DITTO is a pairing wine bar in Busan centered on fermentation and aging.',
-    storyTrigger: 'About our sommelier & chef →',
-    storyLabel: 'About DITTO',
-    storyClose: 'Close ✕',
-    storyBack: 'Back to menu',
+    introLabel: 'About DITTO',
+    next: 'View menu',
     navLabel: 'Menu categories',
     langLabel: 'Language',
     tagline: 'Pairing Wine Bar · Busan',
@@ -68,10 +62,9 @@ const copy = {
   }
 };
 
-// Short skippable logo splash on first session load (no scroll locking)
+// Short skippable logo splash on first session load; reveals intro immediately after ~0.85s
 const splash = $('splash');
 let splashTimer;
-let splashFadeTimer;
 
 function dismissSplash() {
   if (!splash || splash.hidden) return;
@@ -83,7 +76,7 @@ function dismissSplash() {
     return;
   }
   splash.classList.add('is-leaving');
-  splashFadeTimer = setTimeout(() => {
+  setTimeout(() => {
     splash.hidden = true;
     splash.classList.remove('is-leaving');
   }, 460);
@@ -94,7 +87,7 @@ function initSplash() {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let seen = false;
   try { seen = sessionStorage.getItem(splashSeenKey) === '1'; } catch {}
-  if (seen || reduced || (location.hash && location.hash !== '#top')) {
+  if (seen || reduced || (location.hash && location.hash !== '#intro')) {
     splash.hidden = true;
     return;
   }
@@ -105,34 +98,6 @@ function initSplash() {
   window.addEventListener('touchstart', dismissSplash, {once: true, passive: true});
   window.addEventListener('keydown', dismissSplash, {once: true});
 }
-
-// Story full-screen matte sheet
-const storySheet = $('story-sheet');
-function openStory() {
-  if (!storySheet) return;
-  if (typeof storySheet.showModal === 'function') {
-    if (!storySheet.open) storySheet.showModal();
-  } else {
-    storySheet.setAttribute('open', '');
-  }
-  storySheet.scrollTop = 0;
-}
-function closeStory() {
-  if (!storySheet) return;
-  if (typeof storySheet.close === 'function' && storySheet.open) {
-    storySheet.close();
-  } else {
-    storySheet.removeAttribute('open');
-  }
-  $('open-story')?.focus();
-}
-$('open-story')?.addEventListener('click', openStory);
-$('close-story')?.addEventListener('click', closeStory);
-$('story-back')?.addEventListener('click', closeStory);
-storySheet?.addEventListener('cancel', event => {
-  event.preventDefault();
-  closeStory();
-});
 
 function updateNavFades() {
   const nav = $('menu-nav');
@@ -169,12 +134,8 @@ function applyLanguageChrome() {
   const strings = copy[language];
   document.documentElement.lang = language;
   document.title = strings.title;
-  $('brand-lead').textContent = strings.brandLead;
-  $('open-story').textContent = strings.storyTrigger;
-  $('story-sheet').setAttribute('aria-label', strings.storyLabel);
-  $('close-story').textContent = strings.storyClose;
-  $('story-back').textContent = strings.storyBack;
-  document.querySelectorAll('#story-body p').forEach((paragraph, index) => {
+  $('intro').setAttribute('aria-label', strings.introLabel);
+  document.querySelectorAll('#intro p').forEach((paragraph, index) => {
     paragraph.replaceChildren();
     if (english) {
       paragraph.textContent = strings.introText[index];
@@ -186,6 +147,7 @@ function applyLanguageChrome() {
       });
     }
   });
+  document.querySelector('.next').textContent = strings.next;
   $('menu-nav').setAttribute('aria-label', strings.navLabel);
   $('footer-tagline').textContent = strings.tagline;
   document.querySelectorAll('.lang-switch').forEach(group => {
