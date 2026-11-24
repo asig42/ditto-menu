@@ -1,6 +1,7 @@
 let activeCategory = 'food';
 let loadingMenu = Boolean(window.dittoRuntime?.cloud);
 const langStorageKey = 'ditto-menu-lang';
+const introSeenKey = 'ditto-intro-seen';
 
 function detectInitialLanguage() {
   try {
@@ -80,6 +81,38 @@ function dismissSplash() {
     splash.hidden = true;
     splash.classList.remove('is-leaving');
   }, 450);
+}
+
+function hasSeenIntro() {
+  try { return localStorage.getItem(introSeenKey) === '1'; }
+  catch { return false; }
+}
+
+function markIntroSeen() {
+  try { localStorage.setItem(introSeenKey, '1'); } catch {}
+}
+
+function applyInitialScrollPosition() {
+  if (location.hash) {
+    requestAnimationFrame(() => $(location.hash.slice(1))?.scrollIntoView({behavior: 'instant'}));
+    return;
+  }
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (hasSeenIntro()) {
+    const jumpToMenu = () => {
+      const menuEl = $('menu');
+      if (!menuEl) return;
+      window.scrollTo({top: menuEl.offsetTop, behavior: 'instant'});
+      syncActiveCategory();
+    };
+    requestAnimationFrame(jumpToMenu);
+    window.addEventListener('load', () => {
+      if (splash && !splash.hidden) jumpToMenu();
+    }, {once: true});
+  } else {
+    window.scrollTo({top: 0, behavior: 'instant'});
+    markIntroSeen();
+  }
 }
 
 function initSplash() {
@@ -296,7 +329,7 @@ if (window.dittoRuntime?.cloud) {
   });
 }
 renderGuest();
-if (location.hash) requestAnimationFrame(() => $(location.hash.slice(1))?.scrollIntoView());
+applyInitialScrollPosition();
 window.addEventListener('storage', event => {
   if (window.dittoRuntime?.cloud) return;
   if (event.key !== storageKey && event.key !== null) return;
