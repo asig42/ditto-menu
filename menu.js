@@ -1,7 +1,6 @@
 let activeCategory = 'food';
 let loadingMenu = Boolean(window.dittoRuntime?.cloud);
 const langStorageKey = 'ditto-menu-lang';
-const splashSeenKey = 'ditto-splash-seen';
 
 function detectInitialLanguage() {
   try {
@@ -62,15 +61,16 @@ const copy = {
   }
 };
 
-// Short skippable logo splash on first session load; reveals intro immediately after ~0.85s
+// Short skippable logo splash on entry; reveals intro after ~1s once logo is ready
 const splash = $('splash');
 let splashTimer;
+let splashSafetyTimer;
 
 function dismissSplash() {
   if (!splash || splash.hidden) return;
   clearTimeout(splashTimer);
+  clearTimeout(splashSafetyTimer);
   if (splash.classList.contains('is-leaving')) return;
-  try { sessionStorage.setItem(splashSeenKey, '1'); } catch {}
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     splash.hidden = true;
     return;
@@ -79,20 +79,28 @@ function dismissSplash() {
   setTimeout(() => {
     splash.hidden = true;
     splash.classList.remove('is-leaving');
-  }, 460);
+  }, 450);
 }
 
 function initSplash() {
   if (!splash) return;
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let seen = false;
-  try { seen = sessionStorage.getItem(splashSeenKey) === '1'; } catch {}
-  if (seen || reduced || (location.hash && location.hash !== '#intro')) {
+  if (location.hash && location.hash !== '#intro') {
     splash.hidden = true;
     return;
   }
   splash.hidden = false;
-  splashTimer = setTimeout(dismissSplash, 850);
+  const startCountdown = () => {
+    clearTimeout(splashTimer);
+    splashTimer = setTimeout(dismissSplash, 1000);
+  };
+  const logoImg = splash.querySelector('img');
+  if (logoImg && !logoImg.complete) {
+    logoImg.addEventListener('load', startCountdown, {once: true});
+    logoImg.addEventListener('error', startCountdown, {once: true});
+    splashSafetyTimer = setTimeout(dismissSplash, 2200);
+  } else {
+    startCountdown();
+  }
   splash.addEventListener('click', dismissSplash, {once: true});
   window.addEventListener('wheel', dismissSplash, {once: true, passive: true});
   window.addEventListener('touchstart', dismissSplash, {once: true, passive: true});
